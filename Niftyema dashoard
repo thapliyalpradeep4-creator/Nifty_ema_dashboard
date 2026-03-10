@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nifty Intraday 20 EMA Dashboard</title>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        body { font-family: Arial; background: #1a1a1a; color: white; padding: 20px; }
+        #chart { height: 500px; width: 100%; }
+        .signal { font-size: 24px; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .buy-call { background: #00ff00; color: black; }
+        .buy-put { background: #ff0000; color: white; }
+        .news { background: #333; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Nifty 50 Real-Time 20 EMA Indicator</h1>
+    <div id="signal" class="signal">Loading...</div>
+    <div id="levels">Support: Loading... | Resistance: Loading...</div>
+    <div id="chart"></div>
+    <div id="news" class="news">Latest: Geopolitical tensions weigh; oil up.[web:8]</div>
+
+    <script>
+        new TradingView.widget({
+            "width": "100%",
+            "height": 500,
+            "symbol": "NSE:NIFTY",
+            "interval": "5",
+            "timezone": "Asia/Kolkata",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_top_toolbar": false,
+            "hide_legend": false,
+            "save_image": false,
+            "container_id": "chart",
+            "studies": ["MASimple@tv-basicstudies:20"]  // Approx EMA20 overlay
+        });
+
+        // Poll for signal (simulate; integrate WebSocket for live)
+        setInterval(() => {
+            fetch('https://api.example.com/nifty-ema')  // Replace with real API like Alpha Vantage/NSE
+                .then(res => res.json())
+                .then(data => {
+                    const price = data.price;
+                    const ema20 = data.ema20;
+                    const signalEl = document.getElementById('signal');
+                    if (price > ema20) {
+                        signalEl.textContent = 'BUY CALL | Levels: Enter >24,100';
+                        signalEl.className = 'signal buy-call';
+                    } else {
+                        signalEl.textContent = 'BUY PUT | Levels: Enter <24,000';
+                        signalEl.className = 'signal buy-put';
+                    }
+                    document.getElementById('levels').textContent = `Support: 23,750 | Resistance: 24,100 [web:13]`;
+                });
+        }, 30000);  // Update every 30s
+    </script>
+</body>
+</html><!-- Add to previous HTML script -->
+<script>
+    const EXPIRY = '2026-03-17';  // Weekly Tuesday
+    // In fetch, append ?expiry=EXPIRY for API
+    document.getElementById('signal').textContent += ` | Weekly ${EXPIRY} Put`;
+</script>
+
